@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-ink font-body antialiased;
+    background-image: radial-gradient(rgba(22, 20, 16, 0.07) 1px, transparent 1px);
+    background-size: 4px 4px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display uppercase tracking-tight;
+  }
+
+  ::selection {
+    @apply bg-cta text-cream;
+  }
+
+  :focus-visible {
+    outline: 3px solid theme("colors.gold");
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .poster-card {
+    @apply border-[3px] border-ink bg-cream shadow-poster;
+  }
+
+  .eyebrow {
+    @apply font-mono text-xs font-bold uppercase tracking-[0.2em] text-ink/70;
+  }
+
+  .btn-cta {
+    @apply inline-flex items-center justify-center gap-2 border-[3px] border-ink bg-cta px-6 py-4
+      font-display text-xl uppercase tracking-wide text-cream shadow-poster transition-all
+      duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-poster-lg
+      active:translate-x-0 active:translate-y-0 active:shadow-poster-sm
+      disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-x-0
+      disabled:hover:translate-y-0 disabled:hover:shadow-poster;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 border-[3px] border-ink bg-cream px-5 py-3
+      font-display text-base uppercase tracking-wide text-ink transition-all duration-150
+      hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-gold-light hover:shadow-poster-sm
+      active:translate-x-0 active:translate-y-0;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-2 border-2 border-ink bg-cream px-3 py-1.5 font-mono text-sm
+      font-semibold uppercase tracking-wide text-ink shadow-poster-sm;
+  }
+}
