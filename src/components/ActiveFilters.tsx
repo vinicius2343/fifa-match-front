@@ -12,7 +12,7 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   RATING: "Força",
 };
 
-const RATING_OPERATOR_LABELS: Record<NonNullable<TeamFilter["ratingOperator"]>, string> = {
+const RATING_OPERATOR_LABELS: Record<NonNullable<TeamFilter["operator"]>, string> = {
   EQUALS: "Igual a",
   LESS_THAN_OR_EQUAL: "Até",
   GREATER_THAN_OR_EQUAL: "A partir de",
@@ -56,7 +56,7 @@ export default function ActiveFilters({ filters, onRemove }: ActiveFiltersProps)
           <button
             type="button"
             onClick={() => onRemove(index)}
-            aria-label={`Remover filtro ${FILTER_TYPE_LABELS[filter.type]}: ${filter.type === "RATING" ? `${RATING_OPERATOR_LABELS[filter.ratingOperator ?? "GREATER_THAN_OR_EQUAL"]} ${formatRatingFilterValue(filter.value)}` : filter.value}`}
+            aria-label={`Remover filtro ${FILTER_TYPE_LABELS[filter.type]}: ${filter.type === "RATING" ? `${RATING_OPERATOR_LABELS[filter.operator ?? "GREATER_THAN_OR_EQUAL"]} ${formatRatingFilterValue(filter.value)}` : filter.value}`}
             className="text-ink/60 hover:text-cta-dark"
           >
             <X size={14} strokeWidth={3} />
