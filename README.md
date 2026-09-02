@@ -16,7 +16,7 @@ O app sobe em `http://localhost:5173` e espera o backend Spring Boot em
 ## Integração com o backend
 
 - `GET /api/match/filters` — catálogo de filtros disponíveis (nada é hardcoded no frontend).
-- `POST /api/match/randomize` — recebe `{ players, filters }` e retorna `{ teams, playersOut }`.
+- `POST /api/match/randomize` — recebe `{ players, matchSize, filters }` e retorna `{ teams, playersOut }`.
 
 Toda a configuração do Axios está em `src/services/api.ts`, e as chamadas ficam centralizadas em
 `src/services/matchService.ts` — nenhum componente chama a API diretamente.
@@ -39,6 +39,9 @@ Toda a configuração do Axios está em `src/services/api.ts`, e as chamadas fic
 Se a resposta real do seu backend tiver um formato diferente, o único arquivo que precisa mudar é
 `src/services/matchService.ts` (função `getFilters`) — normalize o payload bruto para o tipo
 `FiltersResponse` (`src/types/match.ts`) ali, e o resto do app continua funcionando sem alterações.
+
+Para filtros de rating, o frontend envia também o operador escolhido em `ratingOperator` com os
+valores `EQUALS`, `LESS_THAN_OR_EQUAL` ou `GREATER_THAN_OR_EQUAL`.
 
 ## CORS
 

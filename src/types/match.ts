@@ -8,6 +8,10 @@
 
 export type TeamType = "CLUB" | "NATIONAL_TEAM";
 
+export type MatchSize = "ONE_V_ONE" | "TWO_V_TWO";
+
+export type RatingOperator = "EQUALS" | "LESS_THAN_OR_EQUAL" | "GREATER_THAN_OR_EQUAL";
+
 /**
  * UI-only concept (not sent directly to the backend): which kind(s) of
  * team the user wants in the draw. Controls which filter groups are shown.
@@ -22,11 +26,13 @@ export interface TeamFilter {
   teamType: TeamType;
   type: FilterType;
   value: string;
+  operator?: RatingOperator;
 }
 
 /** Body sent to POST /api/match/randomize */
 export interface MatchRequest {
   players: string[];
+  matchSize: MatchSize;
   filters: TeamFilter[];
 }
 

@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
-import type { FilterType, FiltersResponse, TeamFilter, TeamType, TeamTypeSelection } from "../types/match";
+import type {
+  FilterType,
+  FiltersResponse,
+  RatingOperator,
+  TeamFilter,
+  TeamType,
+  TeamTypeSelection,
+} from "../types/match";
 
 interface FilterSelectorProps {
   filtersResponse: FiltersResponse;
@@ -14,6 +21,32 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   LEAGUE: "Liga",
   RATING: "Força",
 };
+
+const RATING_VALUES = Array.from({ length: 9 }, (_, index) => (1 + index * 0.5).toFixed(1));
+
+const RATING_OPERATOR_OPTIONS: Array<{ value: RatingOperator; label: string }> = [
+  { value: "EQUALS", label: "Igual a" },
+  { value: "LESS_THAN_OR_EQUAL", label: "Até" },
+  { value: "GREATER_THAN_OR_EQUAL", label: "A partir de" },
+];
+
+function formatRatingStars(value: string | number): string {
+  const numeric = typeof value === "number" ? value : Number(value);
+
+  if (Number.isNaN(numeric)) {
+    return String(value);
+  }
+
+  const fullStars = Math.floor(numeric);
+  const hasHalfStar = numeric % 1 >= 0.5;
+  const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
+
+  return `${"★".repeat(fullStars)}${hasHalfStar ? "½" : ""}${"☆".repeat(emptyStars)}`;
+}
+
+function formatRatingFilterValue(value: string): string {
+  return `${formatRatingStars(value)} (${value})`;
+}
 
 const TEAM_TYPE_LABELS: Record<TeamType, string> = {
   CLUB: "Clube",
@@ -36,6 +69,7 @@ export default function FilterSelector({
   const [teamType, setTeamType] = useState<TeamType>(availableTeamTypes[0]);
   const [filterType, setFilterType] = useState<FilterType | "">("");
   const [value, setValue] = useState("");
+  const [operator, setOperator] = useState<RatingOperator>("GREATER_THAN_OR_EQUAL");
   const [error, setError] = useState<string | null>(null);
 
   // Keep the selected teamType valid whenever the user changes CLUBES / SELEÇÕES / AMBOS.
@@ -44,6 +78,7 @@ export default function FilterSelector({
       setTeamType(availableTeamTypes[0]);
       setFilterType("");
       setValue("");
+      setOperator("GREATER_THAN_OR_EQUAL");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamTypeSelection]);
@@ -61,6 +96,11 @@ export default function FilterSelector({
     if (teamType === "CLUB") group = filtersResponse.teamFilters;
     if (teamType === "NATIONAL_TEAM") group = filtersResponse.nationalTeamFilters;
     if (!filterType || !group) return [];
+
+    if (filterType === "RATING") {
+      return RATING_VALUES.map((value) => ({ value, label: value }));
+    }
+
     const filter = group.find((f) => f.type === filterType);
     if (!filter) return [];
     return filter.options.map((value) => ({ value, label: value }));
@@ -70,12 +110,14 @@ export default function FilterSelector({
     setTeamType(next);
     setFilterType("");
     setValue("");
+    setOperator("GREATER_THAN_OR_EQUAL");
     setError(null);
   }
 
   function handleFilterTypeChange(next: FilterType | "") {
     setFilterType(next);
     setValue("");
+    setOperator("GREATER_THAN_OR_EQUAL");
     setError(null);
   }
 
@@ -85,13 +127,22 @@ export default function FilterSelector({
       return;
     }
     const alreadyActive = activeFilters.some(
-      (f) => f.teamType === teamType && f.type === filterType && f.value === value
+      (f) =>
+        f.teamType === teamType &&
+        f.type === filterType &&
+        f.value === value &&
+        (filterType !== "RATING" || f.operator === operator)
     );
     if (alreadyActive) {
       setError("Esse filtro já está ativo.");
       return;
     }
-    const result = onAdd({ teamType, type: filterType, value });
+    const result = onAdd({
+      teamType,
+      type: filterType,
+      value,
+      ...(filterType === "RATING" ? { operator } : {}),
+    });
     if (result) {
       setError(result);
       return;
@@ -104,7 +155,13 @@ export default function FilterSelector({
     <div className="space-y-4">
       <div
         className={`grid gap-3 ${
-          availableTeamTypes.length > 1 ? "sm:grid-cols-3" : "sm:grid-cols-2"
+          filterType === "RATING"
+            ? availableTeamTypes.length > 1
+              ? "sm:grid-cols-4"
+              : "sm:grid-cols-3"
+            : availableTeamTypes.length > 1
+              ? "sm:grid-cols-3"
+              : "sm:grid-cols-2"
         }`}
       >
         {availableTeamTypes.length > 1 && (
@@ -155,11 +212,28 @@ export default function FilterSelector({
             <option value="">Selecione…</option>
             {valueOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
-                {opt.label}
+                {filterType === "RATING" ? formatRatingFilterValue(opt.value) : opt.label}
               </option>
             ))}
           </select>
         </label>
+
+        {filterType === "RATING" && (
+          <label className="block">
+            <span className="eyebrow mb-1 block">Operador</span>
+            <select
+              value={operator}
+              onChange={(e) => setOperator(e.target.value as RatingOperator)}
+              className="w-full border-[3px] border-ink bg-cream px-3 py-2.5 font-body focus:outline-none"
+            >
+              {RATING_OPERATOR_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
 
       {filterType && filterTypeOptions.length > 0 && valueOptions.length === 0 && (

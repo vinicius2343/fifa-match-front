@@ -1,24 +1,34 @@
 import { useCallback, useState } from "react";
 import { randomizeMatch } from "../services/matchService";
-import type { MatchRequest, MatchResult, TeamFilter } from "../types/match";
+import type { MatchRequest, MatchResult, MatchSize, TeamFilter } from "../types/match";
 
 interface UseMatchDrawState {
   result: MatchResult | null;
   loading: boolean;
   error: string | null;
-  draw: (players: string[], filters: TeamFilter[]) => Promise<void>;
+  draw: (players: string[], filters: TeamFilter[], matchSize: MatchSize) => Promise<void>;
   reset: () => void;
 }
 
 /** Basic pre-flight validation before hitting the API. Returns an error message or null. */
-function validate(players: string[], filters: TeamFilter[]): string | null {
-  if (players.length === 0) {
-    return "Adicione pelo menos um jogador antes de sortear.";
-  }
-  if (filters.length === 0) {
-    return "Escolha ao menos um filtro para o sorteio.";
+function validate(players: string[], matchSize: MatchSize): string | null {
+  const minimumPlayers = matchSize === "ONE_V_ONE" ? 2 : 4;
+
+  if (players.length < minimumPlayers) {
+    return `Adicione pelo menos ${minimumPlayers} jogadores para sortear ${matchSize === "ONE_V_ONE" ? "1x1" : "2x2"}.`;
   }
   return null;
+}
+
+function normalizeFilters(filters: TeamFilter[]): TeamFilter[] {
+  return filters.map((filter) =>
+    filter.type === "RATING"
+      ? {
+          ...filter,
+          operator: filter.operator ?? "GREATER_THAN_OR_EQUAL",
+        }
+      : filter
+  );
 }
 
 /**
@@ -30,8 +40,8 @@ export function useMatchDraw(): UseMatchDrawState {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const draw = useCallback(async (players: string[], filters: TeamFilter[]) => {
-    const validationError = validate(players, filters);
+  const draw = useCallback(async (players: string[], filters: TeamFilter[], matchSize: MatchSize) => {
+    const validationError = validate(players, matchSize);
     if (validationError) {
       setError(validationError);
       return;
@@ -40,7 +50,11 @@ export function useMatchDraw(): UseMatchDrawState {
     setLoading(true);
     setError(null);
 
-    const request: MatchRequest = { players, filters };
+    const request: MatchRequest = {
+      players,
+      matchSize,
+      filters: normalizeFilters(filters),
+    };
 
     try {
       const data = await randomizeMatch(request);

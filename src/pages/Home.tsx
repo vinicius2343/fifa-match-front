@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Hero from "../components/Hero";
 import PlayerInput from "../components/PlayerInput";
 import PlayerList from "../components/PlayerList";
+import MatchSizeSelector from "../components/MatchSizeSelector";
 import TeamTypeSelector from "../components/TeamTypeSelector";
 import FilterSelector from "../components/FilterSelector";
 import ActiveFilters from "../components/ActiveFilters";
@@ -13,7 +14,7 @@ import MatchResult from "../components/MatchResult";
 import { useFilters } from "../hooks/useFilters";
 import { usePlayers } from "../hooks/usePlayers";
 import { useMatchDraw } from "../hooks/useMatchDraw";
-import type { TeamFilter, TeamTypeSelection } from "../types/match";
+import type { MatchSize, TeamFilter, TeamTypeSelection } from "../types/match";
 
 /** True when the filters payload came back but has no usable options anywhere. */
 function hasNoFilterOptions(filters: ReturnType<typeof useFilters>["filters"]): boolean {
@@ -31,6 +32,7 @@ export default function Home() {
   const { result, loading: drawing, error: drawError, draw, reset } = useMatchDraw();
 
   const [teamTypeSelection, setTeamTypeSelection] = useState<TeamTypeSelection>("CLUB");
+  const [matchSize, setMatchSize] = useState<MatchSize>("ONE_V_ONE");
   const [activeFilters, setActiveFilters] = useState<TeamFilter[]>([]);
 
   function handleTeamTypeChange(next: TeamTypeSelection) {
@@ -51,7 +53,7 @@ export default function Home() {
   }
 
   function handleDraw() {
-    draw(players, activeFilters);
+    draw(players, activeFilters, matchSize);
   }
 
   function handleReset() {
@@ -59,6 +61,8 @@ export default function Home() {
   }
 
   const noFilterOptions = !filtersLoading && !filtersError && hasNoFilterOptions(filters);
+  const minimumPlayers = matchSize === "ONE_V_ONE" ? 2 : 4;
+  const hasMinimumPlayers = players.length >= minimumPlayers;
 
   return (
     <div className="min-h-screen">
@@ -80,12 +84,18 @@ export default function Home() {
 
             <div>
               <p className="eyebrow mb-2">Passo 2</p>
+              <h2 className="mb-4 text-3xl sm:text-4xl">Tamanho da partida</h2>
+              <MatchSizeSelector value={matchSize} onChange={setMatchSize} />
+            </div>
+
+            <div>
+              <p className="eyebrow mb-2">Passo 3</p>
               <h2 className="mb-4 text-3xl sm:text-4xl">Tipo de time</h2>
               <TeamTypeSelector value={teamTypeSelection} onChange={handleTeamTypeChange} />
             </div>
 
             <div>
-              <p className="eyebrow mb-2">Passo 3</p>
+              <p className="eyebrow mb-2">Passo 4</p>
               <h2 className="mb-4 text-3xl sm:text-4xl">Como você quer jogar?</h2>
 
               {filtersLoading && (
@@ -129,6 +139,11 @@ export default function Home() {
 
             <div className="space-y-3">
               <SortButton loading={drawing} onClick={handleDraw} />
+              {!hasMinimumPlayers && (
+                <p className="text-center font-mono text-sm font-semibold text-cta-dark">
+                  Para {matchSize === "ONE_V_ONE" ? "1x1" : "2x2"}, adicione pelo menos {minimumPlayers} jogadores.
+                </p>
+              )}
               {drawError && (
                 <p className="text-center font-mono text-sm font-semibold text-cta-dark">
                   {drawError}
