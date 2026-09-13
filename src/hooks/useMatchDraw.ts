@@ -31,10 +31,6 @@ function normalizeFilters(filters: TeamFilter[]): TeamFilter[] {
   );
 }
 
-/**
- * Orchestrates POST /api/match/randomize: validates input, tracks loading
- * and error state, and stores the resulting MatchResult.
- */
 export function useMatchDraw(): UseMatchDrawState {
   const [result, setResult] = useState<MatchResult | null>(null);
   const [loading, setLoading] = useState(false);

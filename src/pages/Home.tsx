@@ -16,7 +16,6 @@ import { usePlayers } from "../hooks/usePlayers";
 import { useMatchDraw } from "../hooks/useMatchDraw";
 import type { MatchSize, TeamFilter, TeamTypeSelection } from "../types/match";
 
-/** True when the filters payload came back but has no usable options anywhere. */
 function hasNoFilterOptions(filters: ReturnType<typeof useFilters>["filters"]): boolean {
   if (!filters) return true;
 
@@ -37,7 +36,7 @@ export default function Home() {
 
   function handleTeamTypeChange(next: TeamTypeSelection) {
     setTeamTypeSelection(next);
-    // Filters that no longer apply to the selected team type(s) are dropped.
+
     setActiveFilters((prev) =>
       prev.filter((f) => next === "BOTH" || f.teamType === next)
     );

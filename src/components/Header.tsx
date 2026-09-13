@@ -13,12 +13,6 @@ export default function Header() {
 
         <nav className="flex items-center gap-2 sm:gap-4">
           <a
-            href="#jogar"
-            className="hidden font-mono text-sm font-semibold uppercase tracking-wide text-ink hover:text-cta sm:inline"
-          >
-            Jogar
-          </a>
-          <a
             href="#como-funciona"
             className="hidden font-mono text-sm font-semibold uppercase tracking-wide text-ink hover:text-cta sm:inline"
           >

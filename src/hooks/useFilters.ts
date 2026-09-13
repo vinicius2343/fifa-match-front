@@ -9,10 +9,6 @@ interface UseFiltersState {
   reload: () => void;
 }
 
-/**
- * Loads the filter catalog from GET /api/match/filters.
- * Exposes loading / error / empty states so the UI can react correctly.
- */
 export function useFilters(): UseFiltersState {
   const [filters, setFilters] = useState<FiltersResponse | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,5 +1,4 @@
 import { Dices, ArrowRight } from "lucide-react";
-import FootballField from "./FootballField";
 
 export default function Hero() {
   return (
@@ -38,14 +37,6 @@ export default function Hero() {
               Como funciona
             </a>
           </div>
-        </div>
-
-        {/* Right: decorative pitch */}
-        <div className="mx-auto w-full max-w-sm lg:max-w-none">
-          <FootballField
-            players={["Vinicius", "João", "Pedro", "Carlos", "Rafael"]}
-            className="rotate-1"
-          />
         </div>
       </div>
     </section>

@@ -8,13 +8,6 @@ interface UsePlayersState {
   editPlayer: (index: number, name: string) => string | null;
 }
 
-/**
- * Holds the player list purely on the frontend until the user runs a draw.
- * Enforces: no empty names, no duplicates (case-insensitive).
- *
- * add/edit functions return an error message (string) on failure, or null
- * on success, so the calling component can show inline feedback.
- */
 export function usePlayers(initial: string[] = []): UsePlayersState {
   const [players, setPlayers] = useState<string[]>(initial);
 
